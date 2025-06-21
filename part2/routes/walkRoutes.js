@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
 
 // POST a new walk request (from owner)
 router.post('/', async (req, res) => {
-  const { dog_id, requested_time, duration_minutes, location } = req.body;
+  const {dog_id, requested_time, duration_minutes, location } = req.body;
 
   try {
     const [result] = await db.query(`
@@ -59,4 +59,25 @@ router.post('/:id/apply', async (req, res) => {
   }
 });
 
+
+
+router.get('/owner/:ownerId', async (req, res) => {
+  const ownerId = req.params.ownerId;
+
+  try {
+    const [rows] = await db.query(`
+      SELECT wr.*, d.name AS dog_name, d.size
+      FROM WalkRequests wr
+      JOIN Dogs d ON wr.dog_id = d.dog_id
+      WHERE d.owner_id = ?
+      ORDER BY wr.requested_time DESC
+    `, [ownerId]);
+
+    res.json(rows);
+
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch walk requests' });
+  }
+
+});
 module.exports = router;

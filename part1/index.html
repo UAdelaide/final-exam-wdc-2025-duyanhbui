@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Walking Service</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ffff00);
+            animation: rainbow 2s infinite;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .container {
+            background: rgba(255,255,255,0.3);
+            padding: 5px;
+            margin: 5px;
+            position: relative;
+            min-height: 200vh;
+        }
+
+        h1 {
+            font-size: 10px;
+            color: #333;
+            text-shadow: 2px 2px 4px #ff0000;
+            animation: blink 0.5s infinite;
+            position: absolute;
+            top: 50px;
+            left: 300px;
+            transform: rotate(-30deg);
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .nav {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            background: yellow;
+            transform: rotate(45deg);
+            z-index: 1000;
+        }
+
+        .button {
+            width: 20px;
+            height: 20px;
+            font-size: 6px;
+            background: #ccc;
+            border: none;
+            position: absolute;
+            cursor: crosshair;
+        }
+
+        .content {
+            font-size: 8px;
+            color: #666;
+            line-height: 0.8;
+            text-align: justify;
+            column-count: 5;
+            column-gap: 5px;
+            position: absolute;
+            top: 100px;
+            width: 90%;
+        }
+
+        .dog-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            position: absolute;
+            opacity: 0.7;
+            animation: float 3s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+            100% { transform: translateY(0px) rotate(360deg); }
+        }
+
+        input {
+            width: 10px;
+            height: 10px;
+            font-size: 4px;
+            border: 1px solid transparent;
+        }
+
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: red;
+            color: yellow;
+            padding: 50px;
+            z-index: 9999;
+            animation: spin 1s infinite;
+            font-size: 24px;
+        }
+
+        @keyframes spin {
+            from { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.5); }
+            to { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
+        }
+
+        a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 5px;
+        }
+
+        .hidden-important {
+            position: absolute;
+            left: -9999px;
+            color: transparent;
+        }
+
+        .floating-text {
+            position: absolute;
+            animation: float 3s infinite ease-in-out;
+            font-size: 12px;
+            color: #ff00ff;
+        }
+
+        .menu {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 30px;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .menu a {
+            color: #333;
+            background: #666;
+            padding: 2px;
+            font-size: 7px;
+        }
+
+        label {
+            position: absolute;
+            font-size: 6px;
+            color: #999;
+        }
+
+        .dog-grid {
+            position: absolute;
+            top: 300px;
+            display: grid;
+            grid-template-columns: repeat(10, 50px);
+            gap: 2px;
+        }
+
+        .price-table {
+            position: absolute;
+            bottom: 100px;
+            left: 500px;
+            font-size: 4px;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="popup" v-if="showPopup">
+            {{ popupMessage }}
+        </div>
+
+        <div class="menu">
+            <a href="#" @click="currentPage = 'dogs'">D</a>
+            <a href="#" @click="currentPage = 'walkers'">W</a>
+            <a href="#" @click="currentPage = 'schedule'">S</a>
+            <a href="#" @click="currentPage = 'pricing'">$</a>
+            <a href="#" @click="currentPage = 'contact'">?</a>
+        </div>
+
+        <div class="container" @click="handleClick">
+            <h1>{{ title }}</h1>
+
+            <div class="floating-text"
+                 v-for="(text, index) in floatingTexts"
+                 :key="index"
+                 :style="{top: (150 + index * 50) + 'px', left: (100 + index * 150) + 'px'}">
+                {{ text }}
+            </div>
+
+            <div class="content">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Important information: Our service costs ${{ price }} per walk.
+                Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Click the tiny button below to book a walk.
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                <span class="hidden-important">To cancel, call 555-0123 within 24 hours.</span>
+                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                Important: We only accept dogs under {{ maxWeight }} pounds. Excepteur sint occaecat cupidatat non proident.
+                All walks must be scheduled {{ advanceHours }} hours in advance. Sunt in culpa qui officia deserunt mollit anim.
+            </div>
+
+            <button type="button" class="button"
+                    v-for="(btn, index) in buttons"
+                    :key="index"
+                    :style="{top: btn.top + 'px', left: btn.left + 'px'}"
+                    @click.stop="buttonClick(btn.message)">
+                {{ btn.label }}
+            </button>
+
+            <form>
+                <label :style="{left: '100px', top: '600px'}">Name:</label>
+                <input type="text" v-model="formData.name" :style="{position: 'absolute', left: '200px', top: '650px'}">
+
+                <label :style="{left: '300px', top: '620px'}">Email:</label>
+                <input type="text" v-model="formData.email" :style="{position: 'absolute', left: '150px', top: '680px'}">
+
+                <label :style="{left: '250px', top: '660px'}">Phone:</label>
+                <input type="text" v-model="formData.phone" :style="{position: 'absolute', left: '350px', top: '610px'}">
+
+                <label :style="{left: '400px', top: '640px'}">Dog Name:</label>
+                <input type="text" v-model="formData.dogName" :style="{position: 'absolute', left: '50px', top: '700px'}">
+            </form>
+
+            <div class="dog-grid">
+                <img v-for="(dog, index) in randomDogs"
+                     :key="index"
+                     :src="dog"
+                     :alt="''"
+                     class="dog-image"
+                     :style="{
+                         width: (30 + index * 10) + 'px',
+                         height: (30 + index * 10) + 'px',
+                         transform: 'rotate(' + (index * 45) + 'deg)'
+                     }">
+            </div>
+
+            <div class="nav">
+                <a href="#" v-for="item in navItems" :key="item" @click="navigate(item)">{{ item }}</a>
+            </div>
+
+            <table class="price-table" border="0">
+                <tr v-for="day in schedule" :key="day.day">
+                    <td>{{ day.day }}</td>
+                    <td>{{ day.hours }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    title: 'DOG WALKING SERVICE',
+                    showPopup: true,
+                    popupMessage: 'WELCOME! CLICK ANYWHERE!',
+                    currentPage: 'home',
+                    price: 50,
+                    maxWeight: 25,
+                    advanceHours: 48,
+                    floatingTexts: ['Best Service!', 'Call Now!', 'Limited Time!', 'Act Fast!'],
+                    buttons: [
+                        {top: 400, left: 400, label: 'Click', message: 'Wrong button!'},
+                        {top: 450, left: 300, label: 'Here', message: 'Try again!'},
+                        {top: 380, left: 450, label: 'Book', message: 'Maybe this one?'},
+                        {top: 420, left: 350, label: 'Now', message: 'Almost!'}
+                    ],
+                    formData: {
+                        name: '',
+                        email: '',
+                        phone: '',
+                        dogName: ''
+                    },
+                    navItems: ['H', 'A', 'C'],
+                    schedule: [
+                        {day: 'Mon', hours: '9-5'},
+                        {day: 'Tue', hours: '9-5'},
+                        {day: 'Wed', hours: 'Closed'},
+                        {day: 'Thu', hours: '9-5'},
+                        {day: 'Fri', hours: '9-3'}
+                    ],
+                    randomDogs: [],
+                    clickCount: 0
+                }
+            },
+            mounted() {
+                this.loadRandomDogs();
+                setTimeout(() => {
+                    this.showPopup = false;
+                }, 3000);
+
+                setInterval(() => {
+                    document.body.style.filter = `hue-rotate(${Math.random() * 360}deg)`;
+                }, 100);
+
+                setInterval(() => {
+                    this.price = Math.floor(Math.random() * 50) + 30;
+                    this.maxWeight = Math.floor(Math.random() * 30) + 15;
+                }, 2000);
+            },
+            methods: {
+                async loadRandomDogs() {
+                    try {
+                        for(let i = 0; i < 10; i++) {
+                            const response = await fetch('https://dog.ceo/api/breeds/image/random');
+                            const data = await response.json();
+                            this.randomDogs.push(data.message);
+                        }
+                    } catch(error) {
+                        console.error('Error loading dogs:', error);
+                    }
+                },
+                handleClick() {
+                    this.clickCount++;
+                    if (this.clickCount % 3 === 0) {
+                        alert(`You've clicked ${this.clickCount} times! Keep going!`);
+                    }
+                },
+                buttonClick(message) {
+                    alert(message);
+                },
+                navigate(item) {
+                    this.showPopup = true;
+                    this.popupMessage = `Navigation to ${item} not implemented!`;
+                    setTimeout(() => {
+                        this.showPopup = false;
+                    }, 2000);
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
